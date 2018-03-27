@@ -36,7 +36,7 @@ void ClientService()
 
     stSockAddr.sin_family = AF_INET;
     stSockAddr.sin_port = htons(port);
-    Res = inet_pton(AF_INET, "192.168.1.37", &stSockAddr.sin_addr);
+    Res = inet_pton(AF_INET, "192.168.1.3", &stSockAddr.sin_addr);
 
     if (0 > Res)
     {
@@ -58,57 +58,31 @@ void ClientService()
         exit(EXIT_FAILURE);
     }
 
-    cout << endl << "----- You're connected now -----" << endl << endl;
+    cout << green << "----- You're connected now -----" << reset << endl;
 
     // INICIANDO EL CHAT --------------------------------------------------
 
     char* buffer = new char[512];
     string message;
     int message_size;
+    if (0 > SocketFD)
+    {
+        perror("ERROR: Accept failed");
+        close(SocketFD);
+        exit(EXIT_FAILURE);
+    }
 
+    bool end_chat = false;
+    thread t_send(ChatSend, SocketFD, client_name, ref(end_chat));
+    thread t_recive(ChatRecive, SocketFD, ref(end_chat));
+    //DETACHING THREADS
+    t_send.detach();
+    t_recive.detach();
     do
     {
-        if (0 > SocketFD)
-        {
-            perror("ERROR: Accept failed");
-            close(SocketFD);
-            exit(EXIT_FAILURE);
-        }
-
-        // ESCRIBIENDO UN MENSAJE --------------------------------------------------
-
-        cout << client_name << ": ";
-        cin >> message;
-        message = client_name + ": " + message;
-
-        message = CreateHeader(message.size()) + message; // PROTOCOLO: AGREGANDO EL TAMANO DEL MENSAJE AL INICIO
-
-        buffer = new char[message.size() + 1];
-        strcpy(buffer, message.c_str()); // PASANDO EL MENSAJE AL BUFFER
-
-        cout << endl << "[Sending: '" << buffer << "']" << endl;
-
-        n = write(SocketFD, buffer, message.size());
-
-        // LEYENDO UN MENSAJE --------------------------------------------------
-
-        n = read(SocketFD, buffer, 4); // PROTOCOLO: LEYENDO LA CABECERA
-        if (n < 0) perror("ERROR: Reading from socket");
-
-        cout << endl << "[Receiving: '";
-        for (int i = 0; i < 4; i++) cout << buffer[i];
-        cout << "']" << endl;
-
-        message_size = atoi(buffer); // PROTOCOLO: OBTENIENDO EL TAMANO DEL MENSAJE
-
-        n = read(SocketFD, buffer, message_size);
-        if (n < 0) perror("ERROR: Reading from socket");
-
-        cout << endl;
-        for (int i = 0; i < message_size; i++) cout << buffer[i];
-        cout << endl;
+       //WAITING CHAT TO END
     }
-    while (true);
+    while (end_chat == false);
 
     shutdown(SocketFD, SHUT_RDWR);
     close(SocketFD);

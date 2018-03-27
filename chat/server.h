@@ -51,7 +51,6 @@ void HostService()
         exit(EXIT_FAILURE);
     }
 
-    cout << endl << "----- You're listening now -----" << endl;
 
     // INICIANDO EL CHAT --------------------------------------------------
 
@@ -61,53 +60,26 @@ void HostService()
 
     for(;;)
     {
+        cout << green << "----- You're listening now -----" << reset << endl;
         int ConnectFD;
         ConnectFD = accept(SocketFD, NULL, NULL);
-
+        if (0 > ConnectFD)
+        {
+            perror("ERROR: Accept failed");
+            close(SocketFD);
+            exit(EXIT_FAILURE);
+        }
+        bool end_chat = false;
+        thread t_send(ChatSend, ConnectFD, host_name, ref(end_chat));
+        thread t_recive(ChatRecive, ConnectFD, ref(end_chat));
+        //DETACHING THREADS
+        t_send.detach();
+        t_recive.detach();
         do
         {
-            if (0 > ConnectFD)
-            {
-                perror("ERROR: Accept failed");
-                close(SocketFD);
-                exit(EXIT_FAILURE);
-            }
-
-            // LEYENDO UN MENSAJE --------------------------------------------------
-
-            n = read(ConnectFD, buffer, 4); // PROTOCOLO: LEYENDO LA CABECERA
-            if (n < 0) perror("ERROR: Reading from socket");
-
-            cout << endl << "[Receiving: '";
-            for (int i = 0; i < 4; i++) cout << buffer[i];
-            cout << "']" << endl;
-
-            message_size = atoi(buffer); // PROTOCOLO: OBTENIENDO EL TAMANO DEL MENSAJE
-
-            n = read(ConnectFD, buffer, message_size);
-            if (n < 0) perror("ERROR: Reading from socket");
-
-            cout << endl;
-            for (int i = 0; i < message_size; i++) cout << buffer[i];
-            cout << endl;
-
-            // ESCRIBIENDO UN MENSAJE --------------------------------------------------
-
-            cout << host_name << ": ";
-            cin >> message;
-            message = host_name + ": " + message;
-
-            message = CreateHeader(message.size()) + message; // PROTOCOLO: AGREGANDO EL TAMANO DEL MENSAJE AL INICIO
-
-            buffer = new char[message.size() + 1];
-            strcpy(buffer, message.c_str()); // PASANDO EL MENSAJE AL BUFFER
-
-            cout << endl << "[Sending: '" << buffer << "']" << endl;
-
-            n = write(ConnectFD, buffer, message.size());
-            if (n < 0) perror("ERROR: Writing to socket");
+           //WAITING CHAT TO END
         }
-        while (true);
+        while (end_chat == false);
 
         shutdown(ConnectFD, SHUT_RDWR);
         close(ConnectFD);
