@@ -25,7 +25,7 @@ void ClientService()
 
     // INGRESANDO DATOS PARA LA CONEXION --------------------------------------------------
 
-    cout << "Username: ";
+    cout << endl << "Username: ";
     cin >> client_name;
     cout << "Port: ";
     cin >> port;
@@ -58,13 +58,13 @@ void ClientService()
         exit(EXIT_FAILURE);
     }
 
-    cout << "----- You're connected now -----" << endl;
+    cout << endl << "----- You're connected now -----" << endl << endl;
 
     // INICIANDO EL CHAT --------------------------------------------------
 
-    char* buffer;
+    char* buffer = new char[512];
     string message;
-    string end_chat;
+    int message_size;
 
     do
     {
@@ -78,22 +78,37 @@ void ClientService()
         // ESCRIBIENDO UN MENSAJE --------------------------------------------------
 
         cout << client_name << ": ";
-        std::getline (std::cin, message);
+        cin >> message;
         message = client_name + ": " + message;
-        buffer = ToChar(message);
+
+        message = CreateHeader(message.size()) + message; // PROTOCOLO: AGREGANDO EL TAMANO DEL MENSAJE AL INICIO
+
+        buffer = new char[message.size() + 1];
+        strcpy(buffer, message.c_str()); // PASANDO EL MENSAJE AL BUFFER
+
+        cout << endl << "[Sending: '" << buffer << "']" << endl;
 
         n = write(SocketFD, buffer, message.size());
 
         // LEYENDO UN MENSAJE --------------------------------------------------
 
-        n = read(SocketFD,buffer, 255);
+        n = read(SocketFD, buffer, 4); // PROTOCOLO: LEYENDO LA CABECERA
         if (n < 0) perror("ERROR: Reading from socket");
 
-        cout << endl << buffer << endl;
+        cout << endl << "[Receiving: '";
+        for (int i = 0; i < 4; i++) cout << buffer[i];
+        cout << "']" << endl;
 
-        end_chat = ToString(buffer);
+        message_size = atoi(buffer); // PROTOCOLO: OBTENIENDO EL TAMANO DEL MENSAJE
+
+        n = read(SocketFD, buffer, message_size);
+        if (n < 0) perror("ERROR: Reading from socket");
+
+        cout << endl;
+        for (int i = 0; i < message_size; i++) cout << buffer[i];
+        cout << endl;
     }
-    while (end_chat[end_chat.size()-1] != '#');
+    while (true);
 
     shutdown(SocketFD, SHUT_RDWR);
     close(SocketFD);

@@ -10,7 +10,6 @@ void HostService()
     struct sockaddr_in stSockAddr;
     int port;
     string host_name;
-    char *buffer;
     int n;
 
     // CREANDO EL SOCKET --------------------------------------------------
@@ -25,7 +24,7 @@ void HostService()
 
     // INGRESANDO DATOS PARA LA CONEXION --------------------------------------------------
 
-    cout << "Username: ";
+    cout << endl << "Username: ";
     cin >> host_name;
     cout << "Port: ";
     cin >> port;
@@ -52,16 +51,16 @@ void HostService()
         exit(EXIT_FAILURE);
     }
 
-    cout << "----- You're listening now -----" << endl;
+    cout << endl << "----- You're listening now -----" << endl;
 
     // INICIANDO EL CHAT --------------------------------------------------
 
+    char* buffer = new char[512];
+    string message;
+    int message_size;
+
     for(;;)
     {
-        string message = "";
-        buffer = ToChar(message);
-        string end_chat;
-
         int ConnectFD;
         ConnectFD = accept(SocketFD, NULL, NULL);
 
@@ -76,24 +75,39 @@ void HostService()
 
             // LEYENDO UN MENSAJE --------------------------------------------------
 
-            n = read(ConnectFD, buffer, 255);
+            n = read(ConnectFD, buffer, 4); // PROTOCOLO: LEYENDO LA CABECERA
             if (n < 0) perror("ERROR: Reading from socket");
 
-            end_chat = ToString(buffer);
+            cout << endl << "[Receiving: '";
+            for (int i = 0; i < 4; i++) cout << buffer[i];
+            cout << "']" << endl;
 
-            cout << endl << buffer << endl;
+            message_size = atoi(buffer); // PROTOCOLO: OBTENIENDO EL TAMANO DEL MENSAJE
+
+            n = read(ConnectFD, buffer, message_size);
+            if (n < 0) perror("ERROR: Reading from socket");
+
+            cout << endl;
+            for (int i = 0; i < message_size; i++) cout << buffer[i];
+            cout << endl;
 
             // ESCRIBIENDO UN MENSAJE --------------------------------------------------
 
             cout << host_name << ": ";
-            std::getline(std::cin, message);
+            cin >> message;
             message = host_name + ": " + message;
-            buffer = ToChar(message);
+
+            message = CreateHeader(message.size()) + message; // PROTOCOLO: AGREGANDO EL TAMANO DEL MENSAJE AL INICIO
+
+            buffer = new char[message.size() + 1];
+            strcpy(buffer, message.c_str()); // PASANDO EL MENSAJE AL BUFFER
+
+            cout << endl << "[Sending: '" << buffer << "']" << endl;
 
             n = write(ConnectFD, buffer, message.size());
             if (n < 0) perror("ERROR: Writing to socket");
         }
-        while (end_chat[end_chat.size()-1] != '#');
+        while (true);
 
         shutdown(ConnectFD, SHUT_RDWR);
         close(ConnectFD);

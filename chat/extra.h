@@ -13,18 +13,20 @@
 
 using namespace std;
 
-string ToString(char* input)
+string CreateHeader(int message_size_int)
 {
-    string output = string(input);
-    return output;
+    string header = "";
+    string message_size_str = to_string(message_size_int);
+
+    for (int i = 0; i < ( 4 - message_size_str.size() ); i++)
+        header += "0";
+
+    return header + message_size_str;
 }
 
-char* ToChar(string input)
+string ToString(char* input)
 {
-    char *output = new char[input.length() + 1];
-
-    for(int i = 0; i < input.length(); i++)
-        output[i] = input[i];
+    string output(input);
 
     return output;
 }
