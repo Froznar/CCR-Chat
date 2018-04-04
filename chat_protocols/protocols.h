@@ -1,7 +1,9 @@
 #ifndef PROTOCOLS_H
 #define PROTOCOLS_H
 
+#include <stdio.h>
 #include <string>
+#include <string.h>
 
 using namespace std;
 
@@ -214,6 +216,31 @@ string ActionE_PACKAGE()
     cout << "[Action E] PACKAGE: FINISHED" << endl << endl;
 
     return output;
+}
+
+// -------------------------
+
+void RightShift(char* char_array)
+{
+    int n = strlen(char_array);
+    char_array[n + 1] = 0;
+
+    while (n){
+        char_array[n] = char_array[n - 1];
+        n--;
+    }
+}
+
+void InsertHeader(string header, char* buffer)
+{
+    char* header_char = new char[5];
+    strcpy(header_char, header.c_str());
+
+    for (int i = 0; i < 5; i++)
+        RightShift(buffer);
+
+    for (int i = 0; i < 5; i++)
+        buffer[i] = header_char[i];
 }
 
 #endif

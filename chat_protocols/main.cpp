@@ -6,6 +6,21 @@ using namespace std;
 
 int main()
 {
+    // EL EJEMPLO DEL INSERT HEADER =======================================================
+
+    char* miau = new char[512];
+    miau[0] = 'c';
+    miau[1] = 'a';
+    miau[2] = 't';
+
+    cout << "A: " << miau << endl; // IMPRIME: cat
+
+    InsertHeader("1111R", miau);
+
+    cout << "header + A: " << miau << endl; // IMPRIME: 1111Rcat
+
+    // ======================================================================================
+
     string package_clientA = "";
 
     char* buffer_server = new char[512];
