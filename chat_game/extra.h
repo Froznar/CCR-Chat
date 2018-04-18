@@ -226,8 +226,8 @@ void ChatSend(int chat_socket, string user_name, bool& end_chat, int GAME_TIPO) 
                         create_box(&win, FALSE);
                         --win.startx;
 
-                        ActionG_PACKAGE(buffer, JUGADOR_ACTUAL, win.startx, win.starty);
-                        n = write(chat_socket, buffer, 12);
+                        ActionG_PACKAGE(buffer, user_name, win.startx, win.starty);
+                        n = write(chat_socket, buffer, 5 + user_name.size() + 6);
                         if (n < 0) perror("ERROR: Writing to socket");
 
                         create_box(&win, TRUE);
@@ -239,8 +239,8 @@ void ChatSend(int chat_socket, string user_name, bool& end_chat, int GAME_TIPO) 
                         create_box(&win, FALSE);
                         ++win.startx;
 
-                        ActionG_PACKAGE(buffer, JUGADOR_ACTUAL, win.startx, win.starty);
-                        n = write(chat_socket, buffer, 12);
+                        ActionG_PACKAGE(buffer, user_name, win.startx, win.starty);
+                        n = write(chat_socket, buffer, 5 + user_name.size() + 6);
                         if (n < 0) perror("ERROR: Writing to socket");
 
                         create_box(&win, TRUE);
@@ -252,8 +252,8 @@ void ChatSend(int chat_socket, string user_name, bool& end_chat, int GAME_TIPO) 
                         create_box(&win, FALSE);
                         --win.starty;
 
-                        ActionG_PACKAGE(buffer, JUGADOR_ACTUAL, win.startx, win.starty);
-                        n = write(chat_socket, buffer, 12);
+                        ActionG_PACKAGE(buffer, user_name, win.startx, win.starty);
+                        n = write(chat_socket, buffer, 5 + user_name.size() + 6);
                         if (n < 0) perror("ERROR: Writing to socket");
 
                         create_box(&win, TRUE);
@@ -265,8 +265,8 @@ void ChatSend(int chat_socket, string user_name, bool& end_chat, int GAME_TIPO) 
                         create_box(&win, FALSE);
                         ++win.starty;
 
-                        ActionG_PACKAGE(buffer, JUGADOR_ACTUAL, win.startx, win.starty);
-                        n = write(chat_socket, buffer, 12);
+                        ActionG_PACKAGE(buffer, user_name, win.startx, win.starty);
+                        n = write(chat_socket, buffer, 5 + user_name.size() + 6);
                         if (n < 0) perror("ERROR: Writing to socket");
 
                         create_box(&win, TRUE);
@@ -282,8 +282,8 @@ void ChatSend(int chat_socket, string user_name, bool& end_chat, int GAME_TIPO) 
                         create_box(&win2, FALSE);
                         --win2.startx;
 
-                        ActionG_PACKAGE(buffer, JUGADOR_ACTUAL, win2.startx, win2.starty);
-                        n = write(chat_socket, buffer, 12);
+                        ActionG_PACKAGE(buffer, user_name, win2.startx, win2.starty);
+                        n = write(chat_socket, buffer, 5 + user_name.size() + 6);
                         if (n < 0) perror("ERROR: Writing to socket");
 
                         create_box(&win2, TRUE);
@@ -295,8 +295,8 @@ void ChatSend(int chat_socket, string user_name, bool& end_chat, int GAME_TIPO) 
                         create_box(&win2, FALSE);
                         ++win2.startx;
 
-                        ActionG_PACKAGE(buffer, JUGADOR_ACTUAL, win2.startx, win2.starty);
-                        n = write(chat_socket, buffer, 12);
+                        ActionG_PACKAGE(buffer, user_name, win2.startx, win2.starty);
+                        n = write(chat_socket, buffer, 5 + user_name.size() + 6);
                         if (n < 0) perror("ERROR: Writing to socket");
 
                         create_box(&win2, TRUE);
@@ -308,8 +308,8 @@ void ChatSend(int chat_socket, string user_name, bool& end_chat, int GAME_TIPO) 
                         create_box(&win2, FALSE);
                         --win2.starty;
 
-                        ActionG_PACKAGE(buffer, JUGADOR_ACTUAL, win2.startx, win2.starty);
-                        n = write(chat_socket, buffer, 12);
+                        ActionG_PACKAGE(buffer, user_name, win2.startx, win2.starty);
+                        n = write(chat_socket, buffer, 5 + user_name.size() + 6);
                         if (n < 0) perror("ERROR: Writing to socket");
 
                         create_box(&win2, TRUE);
@@ -321,8 +321,8 @@ void ChatSend(int chat_socket, string user_name, bool& end_chat, int GAME_TIPO) 
                         create_box(&win2, FALSE);
                         ++win2.starty;
 
-                        ActionG_PACKAGE(buffer, JUGADOR_ACTUAL, win2.startx, win2.starty);
-                        n = write(chat_socket, buffer, 12);
+                        ActionG_PACKAGE(buffer, user_name, win2.startx, win2.starty);
+                        n = write(chat_socket, buffer, 5 + user_name.size() + 6);
                         if (n < 0) perror("ERROR: Writing to socket");
 
                         create_box(&win2, TRUE);
@@ -383,10 +383,10 @@ void ChatRecive(int chat_socket, bool& end_chat)
 
             // LEYENDO EL JUGADOR --------------------------------------------------
 
-            n = read(chat_socket, buffer, 1);
+            n = read(chat_socket, buffer, header);
             if (n < 0) perror("ERROR: Reading from socket");
 
-            int jugador = Read_INT(buffer, 0, 1);
+            string jugador = Read_STR(buffer, 0, header);
             cout << "Jugador: " << jugador << endl;
 
             // LEYENDO X --------------------------------------------------
