@@ -24,11 +24,6 @@
 
 // TERMINA DEPENDENCIAS DEL JUEGO ==================================================
 
-const int BALA_ARRIBA = 0;
-const int BALA_ABAJO = 1;
-const int BALA_DERECHA = 2;
-const int BALA_IZQUIERDA = 3;
-
 using namespace std;
 //GLOBAL VARIABLES
 mutex MAP_MUTEX;

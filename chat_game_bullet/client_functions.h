@@ -314,8 +314,12 @@ void Client_Send_Thread(int chat_socket, vector<pair<string, pair<int,int> >>& a
 
                         CLIENT_MUTEX.lock();
                         balas.push_back(bala);
-                        balas_info.emplace_back(monstruos[0].startx + 8, monstruos[0].starty, BALA_DERECHA, client_name);
+                        balas_info.emplace_back(monstruos[0].startx + 8, monstruos[0].starty, BALA_DERECHA, amigos[0].first);
                         CLIENT_MUTEX.unlock();
+
+                        ActionB_PACKAGE(buffer, monstruos[0].startx + 8, monstruos[0].starty, BALA_DERECHA, amigos[0].first);
+                        n = write(chat_socket, buffer, 5 + amigos[0].first.size() + 7);
+                        if (n < 0) perror("ERROR: Writing to socket");
 
                         break;
 
@@ -330,8 +334,12 @@ void Client_Send_Thread(int chat_socket, vector<pair<string, pair<int,int> >>& a
 
                         CLIENT_MUTEX.lock();
                         balas.push_back(bala);
-                        balas_info.emplace_back(monstruos[0].startx - 8, monstruos[0].starty, BALA_IZQUIERDA, client_name);
+                        balas_info.emplace_back(monstruos[0].startx - 8, monstruos[0].starty, BALA_IZQUIERDA, amigos[0].first);
                         CLIENT_MUTEX.unlock();
+
+                        ActionB_PACKAGE(buffer, monstruos[0].startx - 8, monstruos[0].starty, BALA_IZQUIERDA, amigos[0].first);
+                        n = write(chat_socket, buffer, 5 + amigos[0].first.size() + 7);
+                        if (n < 0) perror("ERROR: Writing to socket");
 
                         break;
 
@@ -346,8 +354,12 @@ void Client_Send_Thread(int chat_socket, vector<pair<string, pair<int,int> >>& a
 
                         CLIENT_MUTEX.lock();
                         balas.push_back(bala);
-                        balas_info.emplace_back(monstruos[0].startx, monstruos[0].starty + 4, BALA_ARRIBA, client_name);
+                        balas_info.emplace_back(monstruos[0].startx, monstruos[0].starty - 4, BALA_ARRIBA, amigos[0].first);
                         CLIENT_MUTEX.unlock();
+
+                        ActionB_PACKAGE(buffer, monstruos[0].startx, monstruos[0].starty - 4, BALA_ARRIBA, amigos[0].first);
+                        n = write(chat_socket, buffer, 5 + amigos[0].first.size() + 7);
+                        if (n < 0) perror("ERROR: Writing to socket");
 
                         break;
 
@@ -362,8 +374,12 @@ void Client_Send_Thread(int chat_socket, vector<pair<string, pair<int,int> >>& a
 
                         CLIENT_MUTEX.lock();
                         balas.push_back(bala);
-                        balas_info.emplace_back(monstruos[0].startx, monstruos[0].starty - 4, BALA_ABAJO, client_name);
+                        balas_info.emplace_back(monstruos[0].startx, monstruos[0].starty + 4, BALA_ABAJO, amigos[0].first);
                         CLIENT_MUTEX.unlock();
+
+                        ActionB_PACKAGE(buffer, monstruos[0].startx, monstruos[0].starty + 4, BALA_ABAJO, amigos[0].first);
+                        n = write(chat_socket, buffer, 5 + amigos[0].first.size() + 7);
+                        if (n < 0) perror("ERROR: Writing to socket");
 
                         break;
 
@@ -428,6 +444,56 @@ void CLIENT_UNPACK(int client_socket, vector<pair<string, pair<int,int> >>& amig
 
         //cout << "[Action R] UNPACK: FINISHED" << endl << endl;
     }
+
+    else if (action == 'B')
+    {
+        //cout << "----- RECIBIENDO BALA ---------------------------------" << endl;
+
+        // LEYENDO EL JUGADOR --------------------------------------------------
+
+        n = read(client_socket, buffer, header);
+        if (n < 0) perror("ERROR: Reading from socket");
+
+        string jugador = Read_STR(buffer, 0, header);
+        //cout << "Jugador: " << jugador << endl;
+
+        // LEYENDO X --------------------------------------------------
+
+        n = read(client_socket, buffer, 3);
+        if (n < 0) perror("ERROR: Reading from socket");
+
+        int x = Read_INT(buffer, 0, 3);
+        //cout << "X: " << x << endl;
+
+        // LEYENDO Y --------------------------------------------------
+
+        n = read(client_socket, buffer, 3);
+        if (n < 0) perror("ERROR: Reading from socket");
+
+        int y = Read_INT(buffer, 0, 3);
+        //cout << "Y: " << y << endl;
+
+        // LEYENDO DIRECCION --------------------------------------------------
+
+        n = read(client_socket, buffer, 1);
+        if (n < 0) perror("ERROR: Reading from socket");
+
+        int dir = Read_INT(buffer, 0, 1);
+        //cout << "DIR: " << dir << endl;
+
+        WIN bala;
+        init_win_params(&bala);
+        bala.startx = x;
+        bala.starty = y;
+        create_bullet(&bala, FALSE);
+        create_box(&monstruos[0], TRUE);
+
+        CLIENT_MUTEX.lock();
+        balas.push_back(bala);
+        balas_info.emplace_back(x, y, dir, jugador);
+        CLIENT_MUTEX.unlock();
+    }
+
     else if (action == 'G')
     {
         //cout << "----- RECIBIENDO ---------------------------------" << endl;

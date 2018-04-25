@@ -113,6 +113,76 @@ void Server_Listener(int client_socket, vector< pair< pair<string, int>, pair<in
             PrintUsers(clients);
             cout << blue << "[Action L] UNPACK: FINISHED" << endl << endl;
         }
+
+        if (action == 'B')
+        {
+            cout << "----- BALA ---------------------------------" << endl;
+
+            // LEYENDO EL JUGADOR --------------------------------------------------
+
+            n = read(client_socket, buffer, header);
+            if (n < 0) perror("ERROR: Reading from socket");
+
+            string jugador = Read_STR(buffer, 0, header);
+            cout << "Jugador: " << jugador << endl;
+
+            // LEYENDO X --------------------------------------------------
+
+            n = read(client_socket, buffer, 3);
+            if (n < 0) perror("ERROR: Reading from socket");
+
+            int x = Read_INT(buffer, 0, 3);
+            cout << "X: " << x << endl;
+
+            // LEYENDO Y --------------------------------------------------
+
+            n = read(client_socket, buffer, 3);
+            if (n < 0) perror("ERROR: Reading from socket");
+
+            int y = Read_INT(buffer, 0, 3);
+            cout << "Y: " << y << endl;
+
+            // LEYENDO DIRECCION --------------------------------------------------
+
+            n = read(client_socket, buffer, 1);
+            if (n < 0) perror("ERROR: Reading from socket");
+
+            int dir = Read_INT(buffer, 0, 1);
+            cout << "DIR: " << dir << endl;
+
+            // ENVIANDO LA BALA A LOS OTROS USUARIOS --------------------------------------------------
+
+            cout << "--------------- ACTUALIZANDO BALA ---------------------" << endl;
+
+            int usuario = 0;
+            for (int i=0; i<clients.size(); i++)
+            {
+                MAP_MUTEX.lock();
+                if(clients[i].first.second == client_socket)
+                {
+                    usuario=i;
+                }
+                MAP_MUTEX.unlock();
+            }
+
+            cout << "usuario: " << usuario<< endl;
+            string nombre = clients[usuario].first.first;
+
+            ActionB_PACKAGE(buffer, x, y, dir, jugador);
+
+            for (int i=0; i<clients.size(); i++)
+            {
+                if(i != usuario)
+                {
+                    n = write(clients[i].first.second, buffer, 5 + nombre.size() + 7);
+                    if (n < 0) perror("ERROR: Writing to socket");
+                    cout << "Bala a cliente: " << i << endl;
+                }
+            }
+
+            cout << "--------------- BALA ENVIADA ---------------------" << endl;
+        }
+
         if (action == 'G')
         {
             cout << "----- RECIBIENDO ---------------------------------" << endl;
