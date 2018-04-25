@@ -7,6 +7,8 @@
 
 //Globales
 vector<WIN> monstruos;
+vector<string> mapa;
+int vida=5;
 
 struct bala_info
 {
@@ -38,6 +40,12 @@ void LogIn(string nickname, int socket)
     strcpy(buffer, message.c_str()); // PASANDO EL MENSAJE AL BUFFER
     cout << endl << "[Sending: '" << buffer << "']" << endl;
     n = write(socket, buffer, message.size());
+
+    //inicializar mapa 60x16
+    for(int i=0;i<15;i++)
+    {
+        mapa.push_back("0000000000000000000000000000000000000000000000000000000000");
+    }
 }
 //actualizar amigos
 void UpdateFriends(vector<pair<string, pair<int,int> >>& amigos, string usuario)
@@ -47,7 +55,7 @@ void UpdateFriends(vector<pair<string, pair<int,int> >>& amigos, string usuario)
 
     //agregarlo
     CLIENT_MUTEX.lock();
-    amigos.push_back(make_pair(usuario, make_pair(0,0)));
+    amigos.push_back(make_pair(usuario, make_pair(1,1)));
     CLIENT_MUTEX.unlock();
 
     WIN monster;
@@ -76,7 +84,9 @@ void Pos_Thread(vector<pair<string, pair<int,int> >>& amigos)
         {
             balas[i].startx = balas_info[i]._begin_x;
             balas[i].starty = balas_info[i]._begin_y;
-
+            //if(mapa[balas_info[i]._begin_y][balas_info[i]._begin_x-1]=='P')
+                //vida--;
+            //mapa[balas_info[i]._begin_y][balas_info[i]._begin_x-1]='O';
             if (balas_info[i]._direccion == BALA_ABAJO)
                 balas_info[i]._begin_y++;
             else if (balas_info[i]._direccion == BALA_ARRIBA)
@@ -85,6 +95,7 @@ void Pos_Thread(vector<pair<string, pair<int,int> >>& amigos)
                 balas_info[i]._begin_x--;
             else if (balas_info[i]._direccion == BALA_DERECHA)
                 balas_info[i]._begin_x++;
+            //mapa[balas_info[i]._begin_y][balas_info[i]._begin_x-1]='B';
         }
         for(int i=0; i<balas.size();i++)
         {
@@ -105,6 +116,8 @@ void Pos_Thread(vector<pair<string, pair<int,int> >>& amigos)
         sleep(1);
     }
 }
+
+
 
 void Client_Send_Thread(int chat_socket, vector<pair<string, pair<int,int> >>& amigos)
 {
@@ -135,7 +148,7 @@ void Client_Send_Thread(int chat_socket, vector<pair<string, pair<int,int> >>& a
             cin >> client_name;
             LogIn(client_name, chat_socket);
             CLIENT_MUTEX.lock();
-            amigos.push_back(make_pair(client_name, make_pair(0,0)));
+            amigos.push_back(make_pair(client_name, make_pair(1,1)));
             CLIENT_MUTEX.unlock();
 
             WIN monster;
@@ -149,11 +162,13 @@ void Client_Send_Thread(int chat_socket, vector<pair<string, pair<int,int> >>& a
             CLIENT_MUTEX.unlock();
 
             //ya estas en el juego
+            //colocando jugador en la matriz
+            mapa[0,0] = 'P';
         }
         else if(option == 2)
         {
             cout << yellow << "----- List Of Users -----" << reset << endl;
-            
+
             char* buffer = new char[256];
             string fileName;
             int packageSize = 0;
@@ -194,7 +209,6 @@ void Client_Send_Thread(int chat_socket, vector<pair<string, pair<int,int> >>& a
                     }
                     for(int i=0; i<monstruos.size();i++)
                     {
-
                         monstruos[i].startx = amigos[i].second.first;
                         monstruos[i].starty = amigos[i].second.second;
                     }
@@ -202,6 +216,8 @@ void Client_Send_Thread(int chat_socket, vector<pair<string, pair<int,int> >>& a
                     {
                          create_box(&monstruos[i], TRUE);
                     }
+                    //Aqui Colocamos la vida
+                    mvaddch(0, 0, vida+48);
 
                     // --------Hacer en loop con amigos---------------------------------------------
 
@@ -210,7 +226,13 @@ void Client_Send_Thread(int chat_socket, vector<pair<string, pair<int,int> >>& a
 
                         case KEY_LEFT:
                         create_box(&monstruos[0], FALSE);
+                        mapa[amigos[0].second.second-1][amigos[0].second.first-1]='O';
                         --amigos[0].second.first;
+                        if(amigos[0].second.first <=0)
+                        {
+                            amigos[0].second.first++;
+                        }
+                        mapa[amigos[0].second.second-1][amigos[0].second.first-1]='P';
 
                         ActionG_PACKAGE(buffer, amigos[0].first, amigos[0].second.first, amigos[0].second.second);
                         n = write(chat_socket, buffer, 5 + amigos[0].first.size() + 6);
@@ -225,7 +247,13 @@ void Client_Send_Thread(int chat_socket, vector<pair<string, pair<int,int> >>& a
 
                         case KEY_RIGHT:
                         create_box(&monstruos[0], FALSE);
+                        mapa[amigos[0].second.second-1][amigos[0].second.first-1]='O';
                         ++amigos[0].second.first;
+                        if(amigos[0].second.first >=60)
+                        {
+                            amigos[0].second.first--;
+                        }
+                        mapa[amigos[0].second.second-1][amigos[0].second.first-1]='P';
 
                         ActionG_PACKAGE(buffer, amigos[0].first, amigos[0].second.first, amigos[0].second.second);
                         n = write(chat_socket, buffer, 5 + amigos[0].first.size() + 6);
@@ -237,8 +265,14 @@ void Client_Send_Thread(int chat_socket, vector<pair<string, pair<int,int> >>& a
                         // --------------------------------------------------
 
                         case KEY_UP:
+                        mapa[amigos[0].second.second-1][amigos[0].second.first-1]='O';
                         create_box(&monstruos[0], FALSE);
                         --amigos[0].second.second;
+                        if(amigos[0].second.second <=0)
+                        {
+                            amigos[0].second.second++;
+                        }
+                        mapa[amigos[0].second.second-1][amigos[0].second.first-1]='P';
 
                         ActionG_PACKAGE(buffer, amigos[0].first, amigos[0].second.first, amigos[0].second.second);
                         n = write(chat_socket, buffer, 5 + amigos[0].first.size() + 6);
@@ -252,8 +286,14 @@ void Client_Send_Thread(int chat_socket, vector<pair<string, pair<int,int> >>& a
                         // --------------------------------------------------
 
                         case KEY_DOWN:
+                        mapa[amigos[0].second.second-1][amigos[0].second.first-1]='O';
                         create_box(&monstruos[0], FALSE);
                         ++amigos[0].second.second;
+                        if(amigos[0].second.second >=16)
+                        {
+                            amigos[0].second.second--;
+                        }
+                        mapa[amigos[0].second.second-1][amigos[0].second.first-1]='P';
 
                         ActionG_PACKAGE(buffer, amigos[0].first, amigos[0].second.first, amigos[0].second.second);
                         n = write(chat_socket, buffer, 5 + amigos[0].first.size() + 6);
