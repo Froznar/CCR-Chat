@@ -8,7 +8,7 @@
 //Globales
 vector<WIN> monstruos;
 vector<string> mapa;
-int vida=5;
+int vida = 5;
 
 struct bala_info
 {
@@ -74,6 +74,20 @@ void Pos_Thread(vector<pair<string, pair<int,int> >>& amigos)
 {
     while(true)
     {
+        /*for(int i=1; i<monstruos.size();i++)
+        {
+             create_box(&monstruos[i], FALSE);
+        }
+        for(int i=1; i<monstruos.size();i++)
+        {
+            monstruos[i].startx = amigos[i].second.first;
+            monstruos[i].starty = amigos[i].second.second;
+        }
+        for(int i=1; i<monstruos.size();i++)
+        {
+             create_box(&monstruos[i], TRUE);
+        }*/
+
         // REVISANDO LAS BALAS --------------------------------------------
 
         for(int i=0; i<balas.size();i++)
@@ -216,6 +230,15 @@ void Client_Send_Thread(int chat_socket, vector<pair<string, pair<int,int> >>& a
                     {
                          create_box(&monstruos[i], TRUE);
                     }
+
+
+                    /*create_box(&monstruos[0], FALSE);
+
+                    monstruos[0].startx = amigos[0].second.first;
+                    monstruos[0].starty = amigos[0].second.second;
+
+                    create_box(&monstruos[0], TRUE);*/
+
                     //Aqui Colocamos la vida
                     mvaddch(0, 0, vida+48);
 
@@ -306,7 +329,7 @@ void Client_Send_Thread(int chat_socket, vector<pair<string, pair<int,int> >>& a
                         case 'd':
 
                         WIN bala;
-                        init_win_params(&bala);
+                        init_bullet_params(&bala);
                         bala.startx = monstruos[0].startx;
                         bala.starty = monstruos[0].starty;
                         create_bullet(&bala, FALSE);
@@ -326,7 +349,7 @@ void Client_Send_Thread(int chat_socket, vector<pair<string, pair<int,int> >>& a
                         case 'a':
 
                         //WIN bala;
-                        init_win_params(&bala);
+                        init_bullet_params(&bala);
                         bala.startx = monstruos[0].startx;
                         bala.starty = monstruos[0].starty;
                         create_bullet(&bala, FALSE);
@@ -346,7 +369,7 @@ void Client_Send_Thread(int chat_socket, vector<pair<string, pair<int,int> >>& a
                         case 'w':
 
                         //WIN bala;
-                        init_win_params(&bala);
+                        init_bullet_params(&bala);
                         bala.startx = monstruos[0].startx;
                         bala.starty = monstruos[0].starty;
                         create_bullet(&bala, FALSE);
@@ -366,7 +389,7 @@ void Client_Send_Thread(int chat_socket, vector<pair<string, pair<int,int> >>& a
                         case 's':
 
                         //WIN bala;
-                        init_win_params(&bala);
+                        init_bullet_params(&bala);
                         bala.startx = monstruos[0].startx;
                         bala.starty = monstruos[0].starty;
                         create_bullet(&bala, FALSE);
@@ -445,7 +468,7 @@ void CLIENT_UNPACK(int client_socket, vector<pair<string, pair<int,int> >>& amig
         //cout << "[Action R] UNPACK: FINISHED" << endl << endl;
     }
 
-    else if (action == 'B')
+    else if (action == 'B') // RECIBIENDO LAS BALAS
     {
         //cout << "----- RECIBIENDO BALA ---------------------------------" << endl;
 
@@ -482,7 +505,7 @@ void CLIENT_UNPACK(int client_socket, vector<pair<string, pair<int,int> >>& amig
         //cout << "DIR: " << dir << endl;
 
         WIN bala;
-        init_win_params(&bala);
+        init_bullet_params(&bala);
         bala.startx = x;
         bala.starty = y;
         create_bullet(&bala, FALSE);

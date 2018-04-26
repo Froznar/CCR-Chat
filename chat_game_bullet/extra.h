@@ -89,10 +89,26 @@ void create_box(WIN *win, bool flag);
 
 void bullet(WIN *p_win){}
 
+void init_bullet_params(WIN *p_win)
+{
+    p_win->height = 1;
+    p_win->width = 1;
+    p_win->starty = (LINES - p_win->height)/2;
+    p_win->startx = (COLS - p_win->width)/2;
+    p_win->border.ls = '|';
+    p_win->border.rs = '|';
+    p_win->border.ts = '-';
+    p_win->border.bs = '-';
+    p_win->border.tl = '+';
+    p_win->border.tr = '+';
+    p_win->border.bl = '+';
+    p_win->border.br = '+';
+}
+
 void init_win_params(WIN *p_win)
 {
-    p_win->height = 20;
-    p_win->width = 20;
+    p_win->height = 3;
+    p_win->width = 5;
     p_win->starty = (LINES - p_win->height)/2;
     p_win->startx = (COLS - p_win->width)/2;
     p_win->border.ls = '|';
@@ -118,12 +134,7 @@ void create_bullet(WIN *p_win, bool flag)
 
     if(flag == TRUE)
     {
-        move( y+0,x ); addstr("          ");
-        move( y+1,x ); addstr("          ");
-        move( y+2,x ); addstr("    OO    ");
-        move( y+3,x ); addstr("    OO    ");
-        move( y+4,x ); addstr("          ");
-        move( y+5,x ); addstr("          ");
+        move( y+0,x ); addstr("o");
     }
     else
         for(j = y; j <= y + h; ++j)
@@ -144,12 +155,10 @@ void create_box(WIN *p_win, bool flag)
 
     if(flag == TRUE)
     {
-        move( y+0,x ); addstr("          ");
-        move( y+1,x ); addstr("  /|_/|   ");
-        move( y+2,x ); addstr("  >^,^<   ");
-        move( y+3,x ); addstr("   / |    ");
-        move( y+4,x ); addstr("  (___)   ");
-        move( y+5,x ); addstr("          ");
+        move( y+0,x ); addstr("/|_/|");
+        move( y+1,x ); addstr(">^,^<");
+        move( y+2,x ); addstr(" / | ");
+        move( y+3,x ); addstr("(___)");
     }   
     else
         for(j = y; j <= y + h; ++j)

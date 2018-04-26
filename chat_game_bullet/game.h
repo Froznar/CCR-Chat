@@ -56,4 +56,16 @@ void ActionB_PACKAGE(char* buffer, int begin_x, int begin_y, int direccion, stri
     Insert_INT(buffer, beginIndex, direccion, 1);
 }
 
+void ActionK_PACKAGE(char* buffer, string nickname) // ACCION MATAR
+{
+    int beginIndex = 0;
+    Insert_INT(buffer, beginIndex, nickname.size(), 4); // 4B: TAMANO DEL NICKNAME
+
+    beginIndex += 4;
+    buffer[beginIndex] = 'K'; // 1B: ACTION
+
+    beginIndex += 1;
+    Insert_STR(buffer, beginIndex, nickname); // nB: NICKNAME
+}
+
 #endif
