@@ -8,9 +8,15 @@ using namespace std;
 
 // ACCION F / D --------------------------------------------------
 
-void ActionFD_PACKAGE(char* buffer, string fileName, string username, char action, int& packageSize) // action = 'F' or 'D'
+bool ActionFD_PACKAGE(char* buffer, string fileName, string username, char action, int& packageSize) // action = 'F' or 'D'
 {
     ifstream file(fileName, ifstream::binary);
+
+    if (!file.good())
+    {
+        cout << endl << "[ Action F/D ] Error, the file doesn't exists" << endl << endl;
+        return false;
+    }
 
     // OBTENIENDO EL TAMANO DEL ARCHIVO --------------------
 
@@ -52,6 +58,8 @@ void ActionFD_PACKAGE(char* buffer, string fileName, string username, char actio
     file.close();
 
     packageSize = beginIndex + fileSize;
+
+    return true;
 }
 
 #endif

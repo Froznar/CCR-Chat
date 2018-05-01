@@ -73,9 +73,10 @@ void Client()
     // CREANDO Y INICIANDO LAS THREADS --------------------------------------------------
 
     vector< pair< string, pair<int, int> > > friends; // USERNAME < X, Y >
+    bool online = true;
 
-    thread t_send(ClientSEND_THREAD, SocketFD, ref(friends));
-    thread t_read(ClientREAD_THREAD, SocketFD, ref(friends));
+    thread t_send(ClientSEND_THREAD, SocketFD, ref(friends), ref(online));
+    thread t_read(ClientREAD_THREAD, SocketFD, ref(friends), ref(online));
 
     t_send.detach();
     t_read.detach();

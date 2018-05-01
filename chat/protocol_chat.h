@@ -34,6 +34,22 @@ void ActionL_PACKAGE(char* buffer, string username, int& packageSize) // LOGIN
     packageSize = beginIndex + username.size();
 }
 
+// ACCION N --------------------------------------------------
+
+void ActionN_PACKAGE(char* buffer, string username, int& packageSize) // NUEVO USUARIO EN EL CHAT
+{
+    int beginIndex = 0;
+    Insert_INT(buffer, beginIndex, username.size(), 4); // 4B: TAMANO DEL USERNAME
+
+    beginIndex += 4;
+    buffer[beginIndex] = 'N'; // 1B: ACCION
+
+    beginIndex += 1;
+    Insert_STR(buffer, beginIndex, username); // nB: USERNAME
+
+    packageSize = beginIndex + username.size();
+}
+
 // ACCION C --------------------------------------------------
 
 void ActionC_PACKAGE(char* buffer, string username, string message, int& packageSize) // ENVIAR MENSAJE A OTRO USUARIO
