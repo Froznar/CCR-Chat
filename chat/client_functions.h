@@ -206,7 +206,7 @@ void ClientREAD_THREAD(int socketFD, vector< pair< string, pair<int, int> > >& f
 
         // ACCION N: ACTUALIZANDO LISTA DE AMIGOS --------------------------------------------------
 
-        if (action == 'N')
+        else if (action == 'N')
         {
             // LEYENDO EL MENSAJE --------------------------------------------------
 
