@@ -1,17 +1,17 @@
 #ifndef CLIENT_H
 #define CLIENT_H
 
-#include <extra.h>
+#include <client_functions.h>
 
-void ClientService()
+using namespace std;
+
+void Client()
 {
     // DATOS DEL SOCKET --------------------------------------------------
 
     struct sockaddr_in stSockAddr;
     int port;
-    string client_name;
     int Res;
-    int n;
 
     // CREANDO EL SOCKET --------------------------------------------------
 
@@ -19,16 +19,14 @@ void ClientService()
 
     if (-1 == SocketFD)
     {
-        perror("ERROR: Can not create socket");
+        perror("[ Client ] Error, can not create socket");
         exit(EXIT_FAILURE);
     }
 
     // INGRESANDO DATOS PARA LA CONEXION --------------------------------------------------
 
-    cout << endl << "Username: ";
-    cin >> client_name;
-    cout << "Port: ";
-    cin >> port;
+    cout << endl << "==================================================" << endl << endl;
+    cout << "[ Client ] Port: "; cin >> port;
 
     // CONFIGURANDO Y INICIANDO EL SOCKET --------------------------------------------------
 
@@ -36,51 +34,55 @@ void ClientService()
 
     stSockAddr.sin_family = AF_INET;
     stSockAddr.sin_port = htons(port);
-    Res = inet_pton(AF_INET, "192.168.1.3", &stSockAddr.sin_addr);
+    Res = inet_pton(AF_INET, "127.0.0.1", &stSockAddr.sin_addr); // IP LOCAL: 127.0.0.1
 
     if (0 > Res)
     {
-        perror("ERROR: First parameter is not a valid address family");
+        perror("[ Client ] Error, first parameter is not a valid address family");
         close(SocketFD);
         exit(EXIT_FAILURE);
     }
+
     else if (0 == Res)
     {
-        perror("ERROR: Char string, second parameter does not contain valid ipaddress");
+        perror("[ Client ] Error, char string, second parameter does not contain valid ipaddress");
         close(SocketFD);
         exit(EXIT_FAILURE);
     }
 
     if (-1 == connect(SocketFD, (const struct sockaddr *)&stSockAddr, sizeof(struct sockaddr_in)))
     {
-        perror("ERROR: Connect failed");
+        perror("[ Client ] Error, connect failed");
         close(SocketFD);
         exit(EXIT_FAILURE);
     }
 
-    cout << green << "----- You're connected now -----" << reset << endl;
+    cout << green << "[ Client ] OK" << reset << endl;
 
     // INICIANDO EL CHAT --------------------------------------------------
 
-    char* buffer = new char[512];
-    string message;
-    int message_size;
     if (0 > SocketFD)
     {
-        perror("ERROR: Accept failed");
+        perror("[ Client ] Error, accept failed");
         close(SocketFD);
         exit(EXIT_FAILURE);
     }
 
     bool end_chat = false;
-    thread t_send(ChatSend, SocketFD, client_name, ref(end_chat));
-    thread t_recive(ChatRecive, SocketFD, ref(end_chat));
-    //DETACHING THREADS
+
+    // CREANDO Y INICIANDO LAS THREADS --------------------------------------------------
+
+    vector< pair< string, pair<int, int> > > friends; // USERNAME < X, Y >
+
+    thread t_send(ClientSEND_THREAD, SocketFD, ref(friends));
+    thread t_read(ClientREAD_THREAD, SocketFD, ref(friends));
+
     t_send.detach();
-    t_recive.detach();
+    t_read.detach();
+
     do
     {
-       //WAITING CHAT TO END
+        // WAITING CHAT TO END
     }
     while (end_chat == false);
 

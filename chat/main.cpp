@@ -1,6 +1,6 @@
 #include <iostream>
-#include <server.h>
 #include <client.h>
+#include <server.h>
 
 using namespace std;
 
@@ -8,16 +8,15 @@ int main()
 {
     int option;
 
-    cout << "----- Cool Chat -----" << endl
-         << "Options:" << endl
-         << "    [1] Create a conversation" << endl
-         << "    [2] Join a conversation" << endl
-         << "Your choice: ";
+    cout << endl << "[ Chat ]" << endl << endl;
 
-    cin >> option;
+    cout << "[ Menu ] 1: Create a conversation" << endl
+         << "[ Menu ] 2: Join a conversation" << endl << endl;
 
-    if (option == 1) HostService();
-    if (option == 2) ClientService();
+    cout << "[ Menu ] Option: "; cin >> option;
+
+    if (option == 1) Server();
+    if (option == 2) Client();
 
     return 0;
 }
